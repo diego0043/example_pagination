@@ -1,7 +1,8 @@
 <script setup>
 import BlogPost from "./components/BlogPost.vue";
 import PaginationComponent from "./components/PaginationComponent.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+const ArrayData = ref([]);
 const fav = ref("");
 const cargando = ref(true);
 const limit = ref(0);
@@ -12,7 +13,9 @@ const editFav = (title) => {
 };
 const editLimit = () => {
   limit.value = limit.value + 10;
-  limit.value >= (ArrayData.value.length-10) ? (limitSup.value = true) : (limitSup.value = false);
+  limit.value >= ArrayData.value.length - 10
+    ? (limitSup.value = true)
+    : (limitSup.value = false);
   limit.value === 0 ? (limitInf.value = true) : (limitInf.value = false);
 };
 const decrementLimit = () => {
@@ -21,13 +24,23 @@ const decrementLimit = () => {
   limit.value === 90 ? (limitSup.value = true) : (limitSup.value = false);
 };
 
-const ArrayData = ref([]);
-fetch("https://jsonplaceholder.typicode.com/posts")
-  .then((res) => res.json())
-  .then((data) => {
-    ArrayData.value = [...data];
+const getData = async () => {
+  try {
+    const data = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const dataJson = await data.json();
+    ArrayData.value = [...dataJson];
     cargando.value = false;
-  });
+  } catch {
+    console.log("error");
+  } finally {
+    cargando.value = false;
+  }
+};
+
+getData();
+//fetch("https://jsonplaceholder.typicode.com/posts")
+//.then((res) => res.json())
+//.then((data) => (ArrayData.value = [...data])).finally( () => cargando.value = false);
 </script>
 <template>
   <div
@@ -59,7 +72,6 @@ fetch("https://jsonplaceholder.typicode.com/posts")
 .title-pri {
   text-align: center;
 }
-
 
 .loading {
   display: inline-block;
